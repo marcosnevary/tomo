@@ -2,10 +2,10 @@ import { useState, type FormEvent, type ReactNode } from "react"
 import {
   bookStatuses,
   bookStatusLabels,
-  ratings,
   type BookStatus,
   type NewBook,
 } from "@/books/book"
+import { StarRatingInput } from "@/books/StarRatingInput"
 import { Button } from "@/components/ui/button"
 import { DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -113,39 +113,22 @@ function BookForm({
           defaultValue={initialBook?.pageCount}
         />
       </div>
-      <div className="flex gap-4">
-        <div className="flex flex-1 flex-col gap-2">
-          <Label htmlFor="status">Status</Label>
-          <NativeSelect
-            id="status"
-            name="status"
-            defaultValue={initialBook?.status ?? "unread"}
-            className="w-full"
-          >
-            {bookStatuses.map((status) => (
-              <NativeSelectOption key={status} value={status}>
-                {bookStatusLabels[status]}
-              </NativeSelectOption>
-            ))}
-          </NativeSelect>
-        </div>
-        <div className="flex flex-1 flex-col gap-2">
-          <Label htmlFor="rating">Rating</Label>
-          <NativeSelect
-            id="rating"
-            name="rating"
-            defaultValue={initialBook?.rating ?? ""}
-            className="w-full"
-          >
-            <NativeSelectOption value="">Not rated</NativeSelectOption>
-            {ratings.map((rating) => (
-              <NativeSelectOption key={rating} value={rating}>
-                {rating === 1 ? "1 star" : `${rating} stars`}
-              </NativeSelectOption>
-            ))}
-          </NativeSelect>
-        </div>
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="status">Status</Label>
+        <NativeSelect
+          id="status"
+          name="status"
+          defaultValue={initialBook?.status ?? "unread"}
+          className="w-full"
+        >
+          {bookStatuses.map((status) => (
+            <NativeSelectOption key={status} value={status}>
+              {bookStatusLabels[status]}
+            </NativeSelectOption>
+          ))}
+        </NativeSelect>
       </div>
+      <StarRatingInput name="rating" defaultValue={initialBook?.rating} />
       {isError && (
         <p className="text-sm text-destructive">
           Could not save the book. Please try again.

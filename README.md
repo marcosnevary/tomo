@@ -1,73 +1,49 @@
-# React + TypeScript + Vite
+# Tomo
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A web app where readers log their readings. See [docs/architecture.md](docs/architecture.md) for how it works.
 
-Currently, two official plugins are available:
+## Getting started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Requirements: Node, pnpm and the [Supabase CLI](https://supabase.com/docs/guides/cli) (`brew install supabase/tap/supabase`).
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+pnpm install
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+### 1. Supabase project
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x"
-import reactDom from "eslint-plugin-react-dom"
+1. Create a project at [supabase.com/dashboard](https://supabase.com/dashboard).
+2. Copy `.env.example` to `.env.local` and fill it with the values from **Project Settings → API Keys** (publishable key) and **Project Settings → Data API** (project URL).
+3. Link the CLI and apply the database migrations:
 
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+   ```bash
+   supabase login
+   supabase link --project-ref <project-ref>
+   supabase db push --remote
+   ```
+
+4. In **Authentication → URL Configuration**, set the Site URL to `http://localhost:5173` and add `http://localhost:5173` to the redirect URLs.
+
+### 2. Google sign-in
+
+1. In the [Google Cloud Console](https://console.cloud.google.com/), create a project, configure the OAuth consent screen (Google Auth Platform → Branding/Audience) and add yourself as a test user.
+2. Create an OAuth client of type **Web application**. Add `https://<project-ref>.supabase.co/auth/v1/callback` as an authorized redirect URI.
+3. In Supabase, open **Authentication → Sign In / Providers → Google**, enable it and paste the client ID and secret.
+
+### 3. Run
+
+```bash
+pnpm dev
 ```
+
+## Scripts
+
+| Script          | What it does                                       |
+| --------------- | -------------------------------------------------- |
+| `pnpm dev`      | Starts the dev server                              |
+| `pnpm build`    | Type-checks and builds for production              |
+| `pnpm lint`     | Runs ESLint                                        |
+| `pnpm format`   | Formats with Prettier                              |
+| `pnpm db:types` | Regenerates database types from the linked project |
+
+After changing the schema, create a migration with `supabase migration new <name>`, apply it with `supabase db push --remote` and run `pnpm db:types`.

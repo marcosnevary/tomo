@@ -1,5 +1,7 @@
 import { cn } from "cn"
-import type { Book } from "@/books/book"
+import { bookStatusLabels, type Book } from "@/books/book"
+import { RatingStars } from "@/books/RatingStars"
+import { Badge } from "@/components/ui/badge"
 
 type BookPosterProps = {
   book: Book
@@ -7,6 +9,10 @@ type BookPosterProps = {
 
 function BookPoster({ book }: BookPosterProps) {
   const hasCover = Boolean(book.coverUrl)
+  const details = [
+    book.year,
+    book.pageCount === undefined ? undefined : `${book.pageCount} pages`,
+  ].filter((detail) => detail !== undefined)
 
   return (
     // tabIndex makes the poster focusable, so keyboard and touch users (who
@@ -32,10 +38,14 @@ function BookPoster({ book }: BookPosterProps) {
       >
         <h2 className="leading-tight font-semibold">{book.title}</h2>
         <p className="text-sm opacity-80">{book.author}</p>
-        <p className="text-xs opacity-70">
-          {book.year} · {book.pageCount} pages
-        </p>
+        {details.length > 0 && (
+          <p className="text-xs opacity-70">{details.join(" · ")}</p>
+        )}
+        {book.rating !== undefined && <RatingStars rating={book.rating} />}
       </div>
+      <Badge variant="secondary" className="absolute top-2 left-2 shadow-sm">
+        {bookStatusLabels[book.status]}
+      </Badge>
     </article>
   )
 }

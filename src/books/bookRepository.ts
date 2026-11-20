@@ -7,9 +7,11 @@ function toBook(row: Tables<"books">): Book {
     id: row.id,
     title: row.title,
     author: row.author,
-    year: row.year,
-    pageCount: row.page_count,
+    year: row.year ?? undefined,
+    pageCount: row.page_count ?? undefined,
     coverUrl: row.cover_url ?? undefined,
+    rating: row.rating ?? undefined,
+    status: row.status,
   }
 }
 
@@ -26,9 +28,11 @@ export async function addBook(newBook: NewBook): Promise<void> {
   const { error } = await supabase.from("books").insert({
     title: newBook.title,
     author: newBook.author,
-    year: newBook.year,
-    page_count: newBook.pageCount,
+    year: newBook.year ?? null,
+    page_count: newBook.pageCount ?? null,
     cover_url: newBook.coverUrl ?? null,
+    rating: newBook.rating ?? null,
+    status: newBook.status,
   })
   if (error) throw error
 }

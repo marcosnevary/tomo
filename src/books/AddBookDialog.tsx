@@ -1,4 +1,10 @@
 import { useState, type FormEvent } from "react"
+import {
+  bookStatuses,
+  bookStatusLabels,
+  ratings,
+  type BookStatus,
+} from "@/books/book"
 import { useAddBook } from "@/books/bookQueries"
 import { BookSearch } from "@/books/BookSearch"
 import type { BookSearchResult } from "@/books/openLibrary"
@@ -14,6 +20,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 
 function AddBookDialog() {
   const [open, setOpen] = useState(false)
@@ -54,9 +61,11 @@ function AddBookForm({ onAdded }: AddBookFormProps) {
       {
         title: String(formData.get("title")).trim(),
         author: String(formData.get("author")).trim(),
-        year: Number(formData.get("year")),
-        pageCount: Number(formData.get("pageCount")),
+        year: optionalNumber(formData.get("year")),
+        pageCount: optionalNumber(formData.get("pageCount")),
         coverUrl: coverUrl.trim() || undefined,
+        rating: optionalNumber(formData.get("rating")),
+        status: formData.get("status") as BookStatus,
       },
       { onSuccess: onAdded },
     )
@@ -117,7 +126,6 @@ function AddBookForm({ onAdded }: AddBookFormProps) {
             type="number"
             step={1}
             defaultValue={selected?.year}
-            required
           />
         </div>
         <div className="flex flex-col gap-2">
@@ -129,8 +137,35 @@ function AddBookForm({ onAdded }: AddBookFormProps) {
             step={1}
             min={1}
             defaultValue={selected?.pageCount}
-            required
           />
+        </div>
+        <div className="flex gap-4">
+          <div className="flex flex-1 flex-col gap-2">
+            <Label htmlFor="status">Status</Label>
+            <NativeSelect
+              id="status"
+              name="status"
+              defaultValue="unread"
+              className="w-full"
+            >
+              {bookStatuses.map((status) => (
+                <NativeSelectOption key={status} value={status}>
+                  {bookStatusLabels[status]}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
+          </div>
+          <div className="flex flex-1 flex-col gap-2">
+            <Label htmlFor="rating">Rating</Label>
+            <NativeSelect id="rating" name="rating" className="w-full">
+              <NativeSelectOption value="">Not rated</NativeSelectOption>
+              {ratings.map((rating) => (
+                <NativeSelectOption key={rating} value={rating}>
+                  {rating === 1 ? "1 star" : `${rating} stars`}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
+          </div>
         </div>
         {addBook.isError && (
           <p className="text-sm text-destructive">
@@ -148,6 +183,11 @@ function AddBookForm({ onAdded }: AddBookFormProps) {
       </form>
     </>
   )
+}
+
+// An empty number input submits "", and Number("") would turn it into 0.
+function optionalNumber(value: FormDataEntryValue | null) {
+  return value ? Number(value) : undefined
 }
 
 export { AddBookDialog }

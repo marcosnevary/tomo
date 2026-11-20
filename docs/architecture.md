@@ -27,7 +27,11 @@ Tomo is a web app where readers log their readings. It is a single-page app that
 
 ## Data model
 
-- **Book** (`books` table). `title`, `author`, `year` and `pageCount`, all required; `year` and `pageCount` are integers, `pageCount` is at least 1 and the title and author cannot be blank. The database generates the `id` and enforces the rules with check constraints; the add-book form repeats them with native HTML validation so most mistakes never reach the server. Each book belongs to one reader (`user_id`).
+- **Book** (`books` table). `title`, `author`, `year` and `pageCount`, all required; `year` and `pageCount` are integers, `pageCount` is at least 1 and the title and author cannot be blank. The database generates the `id` and enforces the rules with check constraints; the add-book form repeats them with native HTML validation so most mistakes never reach the server. Each book belongs to one reader (`user_id`). `coverUrl` (`cover_url`) is optional and must be an `http(s)` URL: a link to an image hosted elsewhere, usually Open Library; the app does not store the image itself. A book without a cover is shown as a placeholder with its title and author.
+
+## External integrations
+
+- **Open Library** (`src/books/openLibrary.ts`). The add-book dialog searches `openlibrary.org/search.json` by title, with no API key, through the `useBookSearch` query hook. A chosen result pre-fills the form: `author_name[0]` → author, `first_publish_year` → year, `number_of_pages_median` → pages, and `cover_i` becomes a `covers.openlibrary.org/b/id/<cover_i>-L.jpg` cover URL. Any of these can be missing, so the reader completes or edits the fields before saving. The raw API types stay inside that module; the rest of the app only sees `BookSearchResult`, which uses the `Book` field names.
 
 ## Decisions
 
@@ -39,6 +43,8 @@ Tomo is a web app where readers log their readings. It is a single-page app that
 - **TanStack Query for server state.** The book list is a copy of data that lives in Postgres; TanStack Query handles loading, errors and refetching after a change, which `useEffect` + `useState` would need by hand.
 - **Supabase CLI migrations, CLI installed with Homebrew.** Migrations keep the schema versioned next to the code that depends on it. Installing the CLI as an npm dev dependency would need its install script allowed, which pnpm blocks by default.
 - **Generated database types.** Types come from the real schema, so a renamed column breaks the build instead of failing at runtime.
+- **Open Library over Google Books.** It needs no key and has no daily quota, and its covers come in large sizes. Its coverage of Brazilian editions is weaker; the editable cover URL and form fields cover the gaps.
+- **Cover as a URL, not an upload.** A link fits a text column and needs no storage; uploads would need Supabase Storage and its own access rules, which can come when readers need covers Open Library lacks.
 - **Libraries added on demand.** Routing (React Router), forms (React Hook Form + Zod) and server state (TanStack Query) are added when first needed, so each one's purpose is clear.
 - **Base UI and the Nova preset.** Both are shadcn's current defaults, so the official docs match the project. Visual identity is deferred; `shadcn apply <code> --only theme` changes the theme later without reinstalling components.
 - **Prettier with `semi: false`.** It matches the style of shadcn-generated code, so adding components does not cause formatting churn.

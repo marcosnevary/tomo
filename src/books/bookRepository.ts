@@ -9,6 +9,7 @@ function toBook(row: Tables<"books">): Book {
     author: row.author,
     year: row.year,
     pageCount: row.page_count,
+    coverUrl: row.cover_url ?? undefined,
   }
 }
 
@@ -27,6 +28,7 @@ export async function addBook(newBook: NewBook): Promise<void> {
     author: newBook.author,
     year: newBook.year,
     page_count: newBook.pageCount,
+    cover_url: newBook.coverUrl ?? null,
   })
   if (error) throw error
 }

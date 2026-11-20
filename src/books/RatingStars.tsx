@@ -1,11 +1,17 @@
 import { Star, StarHalf } from "lucide-react"
 import { maxRating } from "@/books/book"
 
-type RatingStarsProps = {
-  rating: number
+const starSizes = {
+  sm: "size-3.5",
+  lg: "size-6",
 }
 
-function RatingStars({ rating }: RatingStarsProps) {
+type RatingStarsProps = {
+  rating: number
+  size?: keyof typeof starSizes
+}
+
+function RatingStars({ rating, size = "sm" }: RatingStarsProps) {
   const stars = Array.from({ length: maxRating }, (_, index) => index + 1)
 
   return (
@@ -16,7 +22,7 @@ function RatingStars({ rating }: RatingStarsProps) {
     >
       {stars.map((star) => (
         // The empty outline is always drawn; a full or half star is laid over it.
-        <span key={star} className="relative size-3.5">
+        <span key={star} className={`relative ${starSizes[size]}`}>
           <Star className="absolute inset-0 size-full opacity-40" />
           {rating >= star ? (
             <Star className="absolute inset-0 size-full fill-current" />

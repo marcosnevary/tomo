@@ -5,3 +5,5 @@ export type Book = {
   year: number
   pageCount: number
 }
+
+export type NewBook = Omit<Book, "id">

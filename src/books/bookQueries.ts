@@ -8,20 +8,23 @@ export function useBooks() {
   return useQuery({ queryKey: booksQueryKey, queryFn: listBooks })
 }
 
-export function useAddBook() {
+/** Every change to a book refetches the list, so the posters show what the database now holds. */
+function useBooksMutation<TVariables>(
+  mutationFn: (variables: TVariables) => Promise<void>,
+) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: addBook,
+    mutationFn,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: booksQueryKey }),
   })
 }
 
+export function useAddBook() {
+  return useBooksMutation(addBook)
+}
+
 export function useUpdateBook() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: updateBook,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: booksQueryKey }),
-  })
+  return useBooksMutation(updateBook)
 }
 
 export function useBookSearch(title: string) {

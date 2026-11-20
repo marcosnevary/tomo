@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
+import { SegmentedControl } from "@/components/SegmentedControl"
 
 type BookFormProps = {
   initialBook?: Partial<NewBook>
@@ -113,21 +113,15 @@ function BookForm({
           defaultValue={initialBook?.pageCount}
         />
       </div>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="status">Status</Label>
-        <NativeSelect
-          id="status"
-          name="status"
-          defaultValue={initialBook?.status ?? "unread"}
-          className="w-full"
-        >
-          {bookStatuses.map((status) => (
-            <NativeSelectOption key={status} value={status}>
-              {bookStatusLabels[status]}
-            </NativeSelectOption>
-          ))}
-        </NativeSelect>
-      </div>
+      <SegmentedControl
+        label="Status"
+        name="status"
+        options={bookStatuses.map((status) => ({
+          value: status,
+          label: bookStatusLabels[status],
+        }))}
+        defaultValue={initialBook?.status ?? "unread"}
+      />
       <StarRatingInput name="rating" defaultValue={initialBook?.rating} />
       {isError && (
         <p className="text-sm text-destructive">

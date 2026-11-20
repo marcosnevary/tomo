@@ -1,5 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { addBook, listBooks, updateBook } from "@/books/bookRepository"
+import {
+  addBook,
+  deleteBook,
+  listBooks,
+  updateBook,
+} from "@/books/bookRepository"
 import { searchBooks } from "@/books/openLibrary"
 
 const booksQueryKey = ["books"]
@@ -25,6 +30,10 @@ export function useAddBook() {
 
 export function useUpdateBook() {
   return useBooksMutation(updateBook)
+}
+
+export function useDeleteBook() {
+  return useBooksMutation(deleteBook)
 }
 
 export function useBookSearch(title: string) {

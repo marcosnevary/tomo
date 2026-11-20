@@ -2,6 +2,7 @@ import { useState } from "react"
 import type { Book } from "@/books/book"
 import { BookForm } from "@/books/BookForm"
 import { BookPoster } from "@/books/BookPoster"
+import { DeleteBookButton } from "@/books/DeleteBookButton"
 import { useUpdateBook } from "@/books/bookQueries"
 import {
   Dialog,
@@ -35,7 +36,7 @@ function EditBookDialog({ book }: EditBookDialogProps) {
         <DialogHeader>
           <DialogTitle>Edit book</DialogTitle>
         </DialogHeader>
-        <EditBookForm book={book} onSaved={() => setOpen(false)} />
+        <EditBookForm book={book} onDone={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
   )
@@ -43,11 +44,11 @@ function EditBookDialog({ book }: EditBookDialogProps) {
 
 type EditBookFormProps = {
   book: Book
-  onSaved: () => void
+  onDone: () => void
 }
 
 // A separate component so the mutation state resets each time the dialog opens.
-function EditBookForm({ book, onSaved }: EditBookFormProps) {
+function EditBookForm({ book, onDone }: EditBookFormProps) {
   const updateBook = useUpdateBook()
 
   return (
@@ -57,8 +58,9 @@ function EditBookForm({ book, onSaved }: EditBookFormProps) {
       pendingLabel="Saving…"
       isPending={updateBook.isPending}
       isError={updateBook.isError}
+      extraActions={<DeleteBookButton book={book} onDeleted={onDone} />}
       onSubmit={(changes) =>
-        updateBook.mutate({ ...changes, id: book.id }, { onSuccess: onSaved })
+        updateBook.mutate({ ...changes, id: book.id }, { onSuccess: onDone })
       }
     />
   )

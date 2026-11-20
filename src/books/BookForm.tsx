@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react"
+import { useState, type FormEvent, type ReactNode } from "react"
 import {
   bookStatuses,
   bookStatusLabels,
@@ -19,6 +19,8 @@ type BookFormProps = {
   isPending: boolean
   isError: boolean
   onSubmit: (book: NewBook) => void
+  /** Extra buttons placed before Cancel, e.g. Delete in the edit dialog. */
+  extraActions?: ReactNode
 }
 
 /** The fields are uncontrolled, so a new `initialBook` only shows up when the form is remounted with a new `key`. */
@@ -29,6 +31,7 @@ function BookForm({
   isPending,
   isError,
   onSubmit,
+  extraActions,
 }: BookFormProps) {
   const [coverUrl, setCoverUrl] = useState(initialBook?.coverUrl ?? "")
 
@@ -149,6 +152,7 @@ function BookForm({
         </p>
       )}
       <DialogFooter>
+        {extraActions}
         <DialogClose render={<Button variant="outline" />}>Cancel</DialogClose>
         <Button type="submit" disabled={isPending}>
           {isPending ? pendingLabel : submitLabel}

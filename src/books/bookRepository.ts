@@ -51,3 +51,13 @@ export async function updateBook(book: Book): Promise<void> {
   // the reader may not make "succeeds" while changing nothing.
   if (count === 0) throw new Error(`Book ${book.id} was not updated`)
 }
+
+export async function deleteBook(id: string): Promise<void> {
+  const { error, count } = await supabase
+    .from("books")
+    .delete({ count: "exact" })
+    .eq("id", id)
+  if (error) throw error
+  // Same as updateBook: a delete blocked by Row Level Security removes nothing without failing.
+  if (count === 0) throw new Error(`Book ${id} was not deleted`)
+}

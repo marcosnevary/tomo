@@ -1,26 +1,16 @@
-import { useState, type FormEvent } from "react"
-import {
-  bookStatuses,
-  bookStatusLabels,
-  ratings,
-  type BookStatus,
-} from "@/books/book"
+import { useState } from "react"
+import { BookForm } from "@/books/BookForm"
 import { useAddBook } from "@/books/bookQueries"
 import { BookSearch } from "@/books/BookSearch"
 import type { BookSearchResult } from "@/books/openLibrary"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
-  DialogClose,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 
 function AddBookDialog() {
   const [open, setOpen] = useState(false)
@@ -45,149 +35,25 @@ type AddBookFormProps = {
 function AddBookForm({ onAdded }: AddBookFormProps) {
   const addBook = useAddBook()
   const [selected, setSelected] = useState<BookSearchResult>()
-  const [coverUrl, setCoverUrl] = useState("")
-
-  function selectResult(result: BookSearchResult) {
-    setSelected(result)
-    setCoverUrl(result.coverUrl ?? "")
-  }
-
-  // onSubmit instead of a form action: an action resets the form when it finishes,
-  // which would wipe what the reader typed if saving fails.
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    const formData = new FormData(event.currentTarget)
-    addBook.mutate(
-      {
-        title: String(formData.get("title")).trim(),
-        author: String(formData.get("author")).trim(),
-        year: optionalNumber(formData.get("year")),
-        pageCount: optionalNumber(formData.get("pageCount")),
-        coverUrl: coverUrl.trim() || undefined,
-        rating: optionalNumber(formData.get("rating")),
-        status: formData.get("status") as BookStatus,
-      },
-      { onSuccess: onAdded },
-    )
-  }
 
   return (
     <>
-      <BookSearch onSelect={selectResult} />
-      <form
-        key={selected?.key}
-        onSubmit={submit}
-        className="flex flex-col gap-4 border-t pt-4"
-      >
-        <div className="flex gap-4">
-          <div className="aspect-[2/3] w-20 shrink-0 overflow-hidden rounded-md bg-muted">
-            {coverUrl && (
-              <img
-                src={coverUrl}
-                alt="Cover preview"
-                className="size-full object-cover"
-              />
-            )}
-          </div>
-          <div className="flex min-w-0 flex-1 flex-col gap-2">
-            <Label htmlFor="coverUrl">Cover URL</Label>
-            <Input
-              id="coverUrl"
-              name="coverUrl"
-              type="url"
-              value={coverUrl}
-              onChange={(event) => setCoverUrl(event.target.value)}
-            />
-          </div>
-        </div>
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="title">Title</Label>
-          <Input
-            id="title"
-            name="title"
-            defaultValue={selected?.title}
-            required
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="author">Author</Label>
-          <Input
-            id="author"
-            name="author"
-            defaultValue={selected?.author}
-            required
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="year">Year</Label>
-          <Input
-            id="year"
-            name="year"
-            type="number"
-            step={1}
-            defaultValue={selected?.year}
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="pageCount">Pages</Label>
-          <Input
-            id="pageCount"
-            name="pageCount"
-            type="number"
-            step={1}
-            min={1}
-            defaultValue={selected?.pageCount}
-          />
-        </div>
-        <div className="flex gap-4">
-          <div className="flex flex-1 flex-col gap-2">
-            <Label htmlFor="status">Status</Label>
-            <NativeSelect
-              id="status"
-              name="status"
-              defaultValue="unread"
-              className="w-full"
-            >
-              {bookStatuses.map((status) => (
-                <NativeSelectOption key={status} value={status}>
-                  {bookStatusLabels[status]}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
-          </div>
-          <div className="flex flex-1 flex-col gap-2">
-            <Label htmlFor="rating">Rating</Label>
-            <NativeSelect id="rating" name="rating" className="w-full">
-              <NativeSelectOption value="">Not rated</NativeSelectOption>
-              {ratings.map((rating) => (
-                <NativeSelectOption key={rating} value={rating}>
-                  {rating === 1 ? "1 star" : `${rating} stars`}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
-          </div>
-        </div>
-        {addBook.isError && (
-          <p className="text-sm text-destructive">
-            Could not save the book. Please try again.
-          </p>
-        )}
-        <DialogFooter>
-          <DialogClose render={<Button variant="outline" />}>
-            Cancel
-          </DialogClose>
-          <Button type="submit" disabled={addBook.isPending}>
-            {addBook.isPending ? "Adding…" : "Add"}
-          </Button>
-        </DialogFooter>
-      </form>
+      <BookSearch onSelect={setSelected} />
+      <div className="border-t pt-4">
+        <BookForm
+          key={selected?.key}
+          initialBook={selected}
+          submitLabel="Add"
+          pendingLabel="Adding…"
+          isPending={addBook.isPending}
+          isError={addBook.isError}
+          onSubmit={(newBook) =>
+            addBook.mutate(newBook, { onSuccess: onAdded })
+          }
+        />
+      </div>
     </>
   )
-}
-
-// An empty number input submits "", and Number("") would turn it into 0.
-function optionalNumber(value: FormDataEntryValue | null) {
-  return value ? Number(value) : undefined
 }
 
 export { AddBookDialog }

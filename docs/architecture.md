@@ -1,6 +1,6 @@
 # Architecture
 
-Tomo is a web app where readers log their readings. It is currently a client-only single-page app with no data layer yet.
+Tomo is a web app where readers log their readings. It is currently a client-only single-page app with no data layer yet: books live in React state in memory and are cleared on reload.
 
 ## Stack
 
@@ -21,6 +21,10 @@ Tomo is a web app where readers log their readings. It is currently a client-onl
 - **Import alias.** `@/` points to `src/`. It is declared twice because two tools resolve imports: TypeScript (`paths` in `tsconfig.json` and `tsconfig.app.json`) and Vite (`resolve.alias` in `vite.config.ts`).
 - **Data access (planned).** Screens will read and write data through a repository module, starting with in-memory data and later backed by Supabase. Access control will rely on Postgres Row Level Security; the Supabase publishable key ships in the frontend by design.
 
+## Data model
+
+- **Book.** `title`, `author`, `year` and `pageCount`, all required; `year` and `pageCount` are integers and `pageCount` is at least 1. Each book gets an `id` from `crypto.randomUUID()` when it is created. The rules are enforced by native HTML validation on the add-book form.
+
 ## Decisions
 
 - **Vite SPA over Next.js.** Next.js brings server components, caching and server routes all at once; Vite keeps the client/server split explicit while the focus is learning React.
@@ -28,6 +32,7 @@ Tomo is a web app where readers log their readings. It is currently a client-onl
 - **Vitest for tests, added with the first test.** It reuses `vite.config.ts` (plugins, alias), so tests and the app share one configuration; `bun test` would need its own.
 - **Supabase as the backend.** It provides Postgres, auth and cross-device sync without writing a server. Browser-only storage (IndexedDB) would keep data on a single device; a custom backend would double the work.
 - **Frontend first, Supabase later.** Building screens against in-memory data lets the data model emerge from use instead of being guessed upfront; the repository module keeps the later switch away from the UI.
+- **Book state in `App` before the repository module.** With a single in-memory consumer, a repository would only add indirection; it is introduced together with Supabase.
 - **Libraries added on demand.** Routing (React Router), forms (React Hook Form + Zod) and server state (TanStack Query) are added when first needed, so each one's purpose is clear.
 - **Base UI and the Nova preset.** Both are shadcn's current defaults, so the official docs match the project. Visual identity is deferred; `shadcn apply <code> --only theme` changes the theme later without reinstalling components.
 - **Prettier with `semi: false`.** It matches the style of shadcn-generated code, so adding components does not cause formatting churn.

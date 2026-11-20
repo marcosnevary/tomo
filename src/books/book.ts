@@ -12,10 +12,10 @@ export const bookStatusLabels: Record<BookStatus, string> = {
 
 export const maxRating = 5
 
-/** Ratings go from 0 to 5 stars in half-star steps; the database enforces the same rule. */
+/** Ratings go from half a star to 5 stars in half-star steps; the database enforces the same rule. */
 export const ratings = Array.from(
-  { length: maxRating * 2 + 1 },
-  (_, index) => index / 2,
+  { length: maxRating * 2 },
+  (_, index) => (index + 1) / 2,
 )
 
 export type Book = {
@@ -25,7 +25,7 @@ export type Book = {
   year?: number
   pageCount?: number
   coverUrl?: string
-  /** Undefined means "not rated", which is different from 0 stars. */
+  /** Undefined means "not rated". */
   rating?: number
   status: BookStatus
 }

@@ -1,5 +1,5 @@
 import type { Book, NewBook } from "@/books/book"
-import type { Tables } from "@/lib/database.types"
+import type { Tables, TablesInsert } from "@/lib/database.types"
 import { supabase } from "@/lib/supabase"
 
 function toBook(row: Tables<"books">): Book {
@@ -15,6 +15,18 @@ function toBook(row: Tables<"books">): Book {
   }
 }
 
+function toRow(book: NewBook): TablesInsert<"books"> {
+  return {
+    title: book.title,
+    author: book.author,
+    year: book.year ?? null,
+    page_count: book.pageCount ?? null,
+    cover_url: book.coverUrl ?? null,
+    rating: book.rating ?? null,
+    status: book.status,
+  }
+}
+
 export async function listBooks(): Promise<Book[]> {
   const { data, error } = await supabase
     .from("books")
@@ -25,14 +37,17 @@ export async function listBooks(): Promise<Book[]> {
 }
 
 export async function addBook(newBook: NewBook): Promise<void> {
-  const { error } = await supabase.from("books").insert({
-    title: newBook.title,
-    author: newBook.author,
-    year: newBook.year ?? null,
-    page_count: newBook.pageCount ?? null,
-    cover_url: newBook.coverUrl ?? null,
-    rating: newBook.rating ?? null,
-    status: newBook.status,
-  })
+  const { error } = await supabase.from("books").insert(toRow(newBook))
   if (error) throw error
+}
+
+export async function updateBook(book: Book): Promise<void> {
+  const { error, count } = await supabase
+    .from("books")
+    .update(toRow(book), { count: "exact" })
+    .eq("id", book.id)
+  if (error) throw error
+  // Row Level Security hides rows instead of rejecting the request, so an update
+  // the reader may not make "succeeds" while changing nothing.
+  if (count === 0) throw new Error(`Book ${book.id} was not updated`)
 }

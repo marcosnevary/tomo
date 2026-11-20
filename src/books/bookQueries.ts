@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { addBook, listBooks } from "@/books/bookRepository"
+import { addBook, listBooks, updateBook } from "@/books/bookRepository"
 import { searchBooks } from "@/books/openLibrary"
 
 const booksQueryKey = ["books"]
@@ -12,6 +12,14 @@ export function useAddBook() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: addBook,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: booksQueryKey }),
+  })
+}
+
+export function useUpdateBook() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: updateBook,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: booksQueryKey }),
   })
 }

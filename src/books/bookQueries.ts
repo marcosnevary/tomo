@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { addBook, listBooks } from "@/books/bookRepository"
+import { searchBooks } from "@/books/openLibrary"
 
 const booksQueryKey = ["books"]
 
@@ -12,5 +13,15 @@ export function useAddBook() {
   return useMutation({
     mutationFn: addBook,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: booksQueryKey }),
+  })
+}
+
+export function useBookSearch(title: string) {
+  return useQuery({
+    queryKey: ["bookSearch", title],
+    queryFn: () => searchBooks(title),
+    enabled: title !== "",
+    // Search results barely change; refetching on every window focus would only repeat the request.
+    staleTime: Infinity,
   })
 }

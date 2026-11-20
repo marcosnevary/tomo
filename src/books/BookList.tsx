@@ -1,4 +1,5 @@
 import type { Book } from "@/books/book"
+import { BookPoster } from "@/books/BookPoster"
 
 type BookListProps = {
   books: Book[]
@@ -10,13 +11,10 @@ function BookList({ books }: BookListProps) {
   }
 
   return (
-    <ul className="divide-y rounded-lg border">
+    <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
       {books.map((book) => (
-        <li key={book.id} className="px-4 py-3">
-          <p className="font-medium">{book.title}</p>
-          <p className="text-sm text-muted-foreground">
-            {book.author} · {book.year} · {book.pageCount} pages
-          </p>
+        <li key={book.id}>
+          <BookPoster book={book} />
         </li>
       ))}
     </ul>

@@ -16,7 +16,7 @@ function BooksScreen() {
   }
 
   return (
-    <main className="mx-auto flex max-w-2xl flex-col gap-6 p-6">
+    <main className="mx-auto flex max-w-5xl flex-col gap-6 p-6">
       <header className="flex items-center justify-between gap-2">
         <h1 className="text-2xl font-semibold">My books</h1>
         <div className="flex gap-2">

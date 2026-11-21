@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { BookForm } from "@/books/BookForm"
+import { BookForm, BookFormSkeleton } from "@/books/BookForm"
 import {
   useAddBook,
   useBookDetails,
@@ -64,7 +64,7 @@ function AddBookForm({ onAdded }: AddBookFormProps) {
       <BookSearch onSelect={select} />
       <div className="border-t pt-4">
         {details.isFetching ? (
-          <p className="text-muted-foreground">Loading book details…</p>
+          <BookFormSkeleton />
         ) : (
           <BookForm
             key={selected?.key}

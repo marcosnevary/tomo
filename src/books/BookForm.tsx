@@ -1,3 +1,4 @@
+import { cn } from "cn"
 import { useState, type FormEvent, type ReactNode } from "react"
 import {
   bookStatuses,
@@ -11,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Skeleton } from "@/components/ui/skeleton"
 import { SegmentedControl } from "@/components/SegmentedControl"
 
 type BookFormProps = {
@@ -190,4 +192,43 @@ function optionalNumber(value: FormDataEntryValue | null) {
   return value ? Number(value) : undefined
 }
 
-export { BookForm }
+/** The form's shape while a chosen book's details load, so the dialog doesn't jump when the form arrives. */
+function BookFormSkeleton() {
+  return (
+    <div role="status" className="flex flex-col gap-4">
+      <span className="sr-only">Loading book details…</span>
+      <div className="flex gap-4">
+        <Skeleton className="aspect-[2/3] w-20 shrink-0" />
+        <FieldSkeleton className="flex-1" />
+      </div>
+      <FieldSkeleton />
+      <FieldSkeleton />
+      <FieldSkeleton />
+      <div className="flex gap-4">
+        <FieldSkeleton className="flex-1" />
+        <FieldSkeleton className="flex-1" />
+      </div>
+      <FieldSkeleton />
+      <div className="flex flex-col gap-2">
+        <Skeleton className="h-3.5 w-12" />
+        <Skeleton className="h-6 w-32" />
+      </div>
+      <DialogFooter>
+        <Skeleton className="h-8 w-18" />
+        <Skeleton className="h-8 w-14" />
+      </DialogFooter>
+    </div>
+  )
+}
+
+/** A label and an input, at the sizes of the real ones. */
+function FieldSkeleton({ className }: { className?: string }) {
+  return (
+    <div className={cn("flex flex-col gap-2", className)}>
+      <Skeleton className="h-3.5 w-16" />
+      <Skeleton className="h-8 w-full" />
+    </div>
+  )
+}
+
+export { BookForm, BookFormSkeleton }

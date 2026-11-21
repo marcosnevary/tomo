@@ -1,8 +1,8 @@
 import { useState } from "react"
 import { BookForm } from "@/books/BookForm"
-import { useAddBook } from "@/books/bookQueries"
+import { useAddBook, useBookDetails } from "@/books/bookQueries"
 import { BookSearch } from "@/books/BookSearch"
-import type { BookSearchResult } from "@/books/openLibrary"
+import type { BookSearchResult } from "@/books/searchBooks"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -35,22 +35,28 @@ type AddBookFormProps = {
 function AddBookForm({ onAdded }: AddBookFormProps) {
   const addBook = useAddBook()
   const [selected, setSelected] = useState<BookSearchResult>()
+  const details = useBookDetails(selected)
 
   return (
     <>
       <BookSearch onSelect={setSelected} />
       <div className="border-t pt-4">
-        <BookForm
-          key={selected?.key}
-          initialBook={selected}
-          submitLabel="Add"
-          pendingLabel="Adding…"
-          isPending={addBook.isPending}
-          isError={addBook.isError}
-          onSubmit={(newBook) =>
-            addBook.mutate(newBook, { onSuccess: onAdded })
-          }
-        />
+        {details.isFetching ? (
+          <p className="text-muted-foreground">Loading book details…</p>
+        ) : (
+          <BookForm
+            key={selected?.key}
+            // If the details fail, the form still opens with what the search result has.
+            initialBook={details.data ?? selected}
+            submitLabel="Add"
+            pendingLabel="Adding…"
+            isPending={addBook.isPending}
+            isError={addBook.isError}
+            onSubmit={(newBook) =>
+              addBook.mutate(newBook, { onSuccess: onAdded })
+            }
+          />
+        )}
       </div>
     </>
   )

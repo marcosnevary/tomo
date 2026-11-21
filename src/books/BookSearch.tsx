@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react"
 import { useBookSearch } from "@/books/bookQueries"
-import type { BookSearchResult } from "@/books/openLibrary"
+import type { BookSearchResult } from "@/books/searchBooks"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"

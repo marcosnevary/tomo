@@ -36,6 +36,12 @@ export type NewBook = Omit<Book, "id">
 
 type ReadingProgress = Pick<Book, "currentPage" | "pageCount">
 
+/** The rounded percentage read, or undefined when either page number is missing. */
+export function readingProgress({ currentPage, pageCount }: ReadingProgress) {
+  if (currentPage === undefined || pageCount === undefined) return undefined
+  return Math.round((currentPage / pageCount) * 100)
+}
+
 /** The status a current page implies, or undefined when there is no current page to go by. */
 export function statusForCurrentPage({
   currentPage,

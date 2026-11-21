@@ -24,6 +24,8 @@ export type Book = {
   author: string
   year?: number
   pageCount?: number
+  /** From 0 to `pageCount`; undefined means progress isn't tracked. */
+  currentPage?: number
   coverUrl?: string
   /** Undefined means "not rated". */
   rating?: number
@@ -31,3 +33,16 @@ export type Book = {
 }
 
 export type NewBook = Omit<Book, "id">
+
+type ReadingProgress = Pick<Book, "currentPage" | "pageCount">
+
+/** The status a current page implies, or undefined when there is no current page to go by. */
+export function statusForCurrentPage({
+  currentPage,
+  pageCount,
+}: ReadingProgress): BookStatus | undefined {
+  if (currentPage === undefined) return undefined
+  if (currentPage === 0) return "unread"
+  if (currentPage === pageCount) return "read"
+  return "reading"
+}

@@ -44,6 +44,7 @@ export type Database = {
           author: string
           cover_url: string | null
           created_at: string
+          current_page: number | null
           id: string
           page_count: number | null
           rating: number | null
@@ -56,6 +57,7 @@ export type Database = {
           author: string
           cover_url?: string | null
           created_at?: string
+          current_page?: number | null
           id?: string
           page_count?: number | null
           rating?: number | null
@@ -68,6 +70,7 @@ export type Database = {
           author?: string
           cover_url?: string | null
           created_at?: string
+          current_page?: number | null
           id?: string
           page_count?: number | null
           rating?: number | null

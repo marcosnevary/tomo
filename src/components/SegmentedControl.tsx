@@ -2,18 +2,20 @@ type SegmentedControlProps<Value extends string> = {
   label: string
   name: string
   options: readonly { value: Value; label: string }[]
-  defaultValue: Value
+  value: Value
+  onValueChange: (value: Value) => void
 }
 
 /**
- * Each segment is a hidden native radio button, so the form reads the choice like any
- * other field and the selected segment is styled from `:checked`, with no React state.
+ * Each segment is a hidden native radio button, so the selected segment is styled from
+ * `:checked` and arrow keys step through the options.
  */
 function SegmentedControl<Value extends string>({
   label,
   name,
   options,
-  defaultValue,
+  value,
+  onValueChange,
 }: SegmentedControlProps<Value>) {
   return (
     <fieldset>
@@ -28,7 +30,8 @@ function SegmentedControl<Value extends string>({
               type="radio"
               name={name}
               value={option.value}
-              defaultChecked={option.value === defaultValue}
+              checked={option.value === value}
+              onChange={() => onValueChange(option.value)}
               className="sr-only"
             />
             {option.label}

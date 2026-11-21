@@ -1,9 +1,4 @@
-import type { Book } from "@/books/book"
-
-export type BookSearchResult = Partial<Omit<Book, "id">> & {
-  key: string
-  title: string
-}
+import type { BookSearchResult } from "@/books/searchBooks"
 
 type OpenLibraryDoc = {
   key: string
@@ -28,9 +23,12 @@ const SEARCH_FIELDS = [
   "cover_i",
 ]
 
-export async function searchBooks(title: string): Promise<BookSearchResult[]> {
+export async function searchOpenLibrary(
+  title: string,
+): Promise<BookSearchResult[]> {
   const params = new URLSearchParams({
-    title,
+    // `q` instead of `title`: it also matches translated edition titles and returns their work.
+    q: title,
     fields: SEARCH_FIELDS.join(","),
     limit: "10",
   })
@@ -44,9 +42,11 @@ export async function searchBooks(title: string): Promise<BookSearchResult[]> {
 
 function toBookSearchResult(doc: OpenLibraryDoc): BookSearchResult {
   return {
+    source: "openLibrary",
     key: doc.key,
     title: doc.title,
     author: doc.author_name?.[0],
+    contributors: doc.author_name ?? [],
     year: doc.first_publish_year,
     pageCount: doc.number_of_pages_median,
     coverUrl:

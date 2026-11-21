@@ -1,11 +1,21 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import {
+  queryOptions,
+  skipToken,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query"
 import {
   addBook,
   deleteBook,
   listBooks,
   updateBook,
 } from "@/books/bookRepository"
-import { searchBooks } from "@/books/openLibrary"
+import {
+  addOpenLibraryDetails,
+  searchBooks,
+  type BookSearchResult,
+} from "@/books/searchBooks"
 
 const booksQueryKey = ["books"]
 
@@ -44,4 +54,27 @@ export function useBookSearch(title: string) {
     // Search results barely change; refetching on every window focus would only repeat the request.
     staleTime: Infinity,
   })
+}
+
+function bookDetailsOptions(result: BookSearchResult | undefined) {
+  return queryOptions({
+    queryKey: ["bookDetails", result?.key],
+    queryFn:
+      result?.source === "appleBooks"
+        ? () => addOpenLibraryDetails(result)
+        : skipToken,
+    staleTime: Infinity,
+  })
+}
+
+/** The Open Library details of a chosen Apple Books result; other results are already complete. */
+export function useBookDetails(result: BookSearchResult | undefined) {
+  return useQuery(bookDetailsOptions(result))
+}
+
+/** Fetches the same details imperatively, so an event handler can react to the outcome; it shares the cache and the in-flight request with `useBookDetails`. */
+export function useFetchBookDetails() {
+  const queryClient = useQueryClient()
+  return (result: BookSearchResult) =>
+    queryClient.fetchQuery(bookDetailsOptions(result))
 }

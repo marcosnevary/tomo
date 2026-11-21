@@ -2,6 +2,7 @@ import { useState, type FormEvent, type ReactNode } from "react"
 import {
   bookStatuses,
   bookStatusLabels,
+  statusForCurrentPage,
   type BookStatus,
   type NewBook,
 } from "@/books/book"
@@ -23,7 +24,7 @@ type BookFormProps = {
   extraActions?: ReactNode
 }
 
-/** The fields are uncontrolled, so a new `initialBook` only shows up when the form is remounted with a new `key`. */
+/** The fields read `initialBook` only when they mount, so a new `initialBook` only shows up when the form is remounted with a new `key`. */
 function BookForm({
   initialBook,
   submitLabel,
@@ -34,6 +35,29 @@ function BookForm({
   extraActions,
 }: BookFormProps) {
   const [coverUrl, setCoverUrl] = useState(initialBook?.coverUrl ?? "")
+  // Number inputs are kept as text so an empty field stays empty instead of becoming 0.
+  const [pageCount, setPageCount] = useState(
+    String(initialBook?.pageCount ?? ""),
+  )
+  const [currentPage, setCurrentPage] = useState(
+    String(initialBook?.currentPage ?? ""),
+  )
+  const [status, setStatus] = useState<BookStatus>(
+    initialBook?.status ?? "unread",
+  )
+
+  function changeProgress(progress: {
+    pageCount: string
+    currentPage: string
+  }) {
+    setPageCount(progress.pageCount)
+    setCurrentPage(progress.currentPage)
+    const impliedStatus = statusForCurrentPage({
+      pageCount: optionalNumber(progress.pageCount),
+      currentPage: optionalNumber(progress.currentPage),
+    })
+    if (impliedStatus) setStatus(impliedStatus)
+  }
 
   // onSubmit instead of a form action: an action resets the form when it finishes,
   // which would wipe what the reader typed if saving fails.
@@ -44,10 +68,11 @@ function BookForm({
       title: String(formData.get("title")).trim(),
       author: String(formData.get("author")).trim(),
       year: optionalNumber(formData.get("year")),
-      pageCount: optionalNumber(formData.get("pageCount")),
+      pageCount: optionalNumber(pageCount),
+      currentPage: optionalNumber(currentPage),
       coverUrl: coverUrl.trim() || undefined,
       rating: optionalNumber(formData.get("rating")),
-      status: formData.get("status") as BookStatus,
+      status,
     })
   }
 
@@ -102,25 +127,46 @@ function BookForm({
           defaultValue={initialBook?.year}
         />
       </div>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="pageCount">Pages</Label>
-        <Input
-          id="pageCount"
-          name="pageCount"
-          type="number"
-          step={1}
-          min={1}
-          defaultValue={initialBook?.pageCount}
-        />
+      <div className="flex gap-4">
+        <div className="flex flex-1 flex-col gap-2">
+          <Label htmlFor="pageCount">Pages</Label>
+          <Input
+            id="pageCount"
+            name="pageCount"
+            type="number"
+            step={1}
+            min={1}
+            value={pageCount}
+            onChange={(event) =>
+              changeProgress({ pageCount: event.target.value, currentPage })
+            }
+          />
+        </div>
+        <div className="flex flex-1 flex-col gap-2">
+          <Label htmlFor="currentPage">Current page</Label>
+          <Input
+            id="currentPage"
+            name="currentPage"
+            type="number"
+            step={1}
+            min={0}
+            max={pageCount || undefined}
+            value={currentPage}
+            onChange={(event) =>
+              changeProgress({ pageCount, currentPage: event.target.value })
+            }
+          />
+        </div>
       </div>
       <SegmentedControl
         label="Status"
         name="status"
-        options={bookStatuses.map((status) => ({
-          value: status,
-          label: bookStatusLabels[status],
+        options={bookStatuses.map((bookStatus) => ({
+          value: bookStatus,
+          label: bookStatusLabels[bookStatus],
         }))}
-        defaultValue={initialBook?.status ?? "unread"}
+        value={status}
+        onValueChange={setStatus}
       />
       <StarRatingInput name="rating" defaultValue={initialBook?.rating} />
       {isError && (

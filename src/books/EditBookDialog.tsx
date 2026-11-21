@@ -1,7 +1,7 @@
 import { useState } from "react"
 import type { Book } from "@/books/book"
+import { BookCover } from "@/books/BookCover"
 import { BookForm } from "@/books/BookForm"
-import { BookPoster } from "@/books/BookPoster"
 import { DeleteBookButton } from "@/books/DeleteBookButton"
 import { useUpdateBook } from "@/books/bookQueries"
 import {
@@ -30,7 +30,7 @@ function EditBookDialog({ book }: EditBookDialogProps) {
           />
         }
       >
-        <BookPoster book={book} />
+        <BookCover book={book} />
       </DialogTrigger>
       <DialogContent className="max-h-[calc(100dvh-2rem)] grid-cols-1 overflow-y-auto sm:max-w-md">
         <DialogHeader>

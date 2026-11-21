@@ -1,47 +1,39 @@
-import { cn } from "cn"
-import { bookStatusLabels, type Book } from "@/books/book"
-import { RatingStars } from "@/books/RatingStars"
+import {
+  bookStatusLabels,
+  readingProgress,
+  type Book,
+  type BookStatus,
+} from "@/books/book"
+import { EditBookDialog } from "@/books/EditBookDialog"
 import { Badge } from "@/components/ui/badge"
 
 type BookPosterProps = {
   book: Book
 }
 
+const statusBadgeColors: Record<BookStatus, string> = {
+  unread: "bg-secondary text-secondary-foreground",
+  reading: "bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300",
+  read: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
+}
+
+/** The cover opens the edit dialog; the status line below it is not clickable. */
 function BookPoster({ book }: BookPosterProps) {
-  const hasCover = Boolean(book.coverUrl)
-  const details = [
-    book.year,
-    book.pageCount === undefined ? undefined : `${book.pageCount} pages`,
-  ].filter((detail) => detail !== undefined)
+  const progress = readingProgress(book)
 
   return (
-    // Hover and focus effects follow the nearest `group`: the edit button that wraps the poster.
-    <article className="relative aspect-[2/3] overflow-hidden rounded-lg bg-muted shadow-sm">
-      {hasCover && (
-        <img
-          src={book.coverUrl}
-          alt={`Cover of ${book.title}`}
-          loading="lazy"
-          className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-105 group-focus-visible:scale-105"
-        />
-      )}
-      <div
-        className={cn(
-          "absolute inset-0 flex flex-col justify-end gap-1 p-3",
-          hasCover &&
-            "bg-black/70 text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100",
+    <article className="flex flex-col gap-2">
+      <EditBookDialog book={book} />
+      <div className="flex items-center justify-between gap-2">
+        <Badge className={statusBadgeColors[book.status]}>
+          {bookStatusLabels[book.status]}
+        </Badge>
+        {progress !== undefined && (
+          <span className="text-xs text-muted-foreground tabular-nums">
+            {progress}%
+          </span>
         )}
-      >
-        <h2 className="leading-tight font-semibold">{book.title}</h2>
-        <p className="text-sm opacity-80">{book.author}</p>
-        {details.length > 0 && (
-          <p className="text-xs opacity-70">{details.join(" · ")}</p>
-        )}
-        {book.rating !== undefined && <RatingStars rating={book.rating} />}
       </div>
-      <Badge variant="secondary" className="absolute top-2 left-2 shadow-sm">
-        {bookStatusLabels[book.status]}
-      </Badge>
     </article>
   )
 }

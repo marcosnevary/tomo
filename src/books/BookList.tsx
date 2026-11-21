@@ -1,5 +1,5 @@
 import type { Book } from "@/books/book"
-import { EditBookDialog } from "@/books/EditBookDialog"
+import { BookPoster } from "@/books/BookPoster"
 
 type BookListProps = {
   books: Book[]
@@ -14,7 +14,7 @@ function BookList({ books }: BookListProps) {
     <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
       {books.map((book) => (
         <li key={book.id}>
-          <EditBookDialog book={book} />
+          <BookPoster book={book} />
         </li>
       ))}
     </ul>

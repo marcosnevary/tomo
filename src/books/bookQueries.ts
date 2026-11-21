@@ -71,3 +71,10 @@ function bookDetailsOptions(result: BookSearchResult | undefined) {
 export function useBookDetails(result: BookSearchResult | undefined) {
   return useQuery(bookDetailsOptions(result))
 }
+
+/** Fetches the same details imperatively, so an event handler can react to the outcome; it shares the cache and the in-flight request with `useBookDetails`. */
+export function useFetchBookDetails() {
+  const queryClient = useQueryClient()
+  return (result: BookSearchResult) =>
+    queryClient.fetchQuery(bookDetailsOptions(result))
+}
